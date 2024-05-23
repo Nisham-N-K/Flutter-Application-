@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class ReminderModel extends ChangeNotifier {
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
@@ -18,7 +19,7 @@ class ReminderModel extends ChangeNotifier {
 
   ReminderModel() {
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    var initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
+    var initializationSettingsAndroid = const AndroidInitializationSettings('app_icon');
     var initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
     );
@@ -48,25 +49,32 @@ class ReminderModel extends ChangeNotifier {
     if (_selectedDay.isNotEmpty && _selectedTime != null && _selectedActivity.isNotEmpty) {
       final now = DateTime.now();
       final scheduledTime = DateTime(now.year, now.month, now.day, _selectedTime.hour, _selectedTime.minute);
-        
-      var androidDetails = AndroidNotificationDetails(
+      
+      var androidDetails = const AndroidNotificationDetails(
         'channelId',
         'channelName',
         channelDescription: 'channelDescription',
         importance: Importance.high,
         playSound: true,
       );
+
+      var scheduledTimeZone = tz.TZDateTime.from(scheduledTime, tz.local);
+
       var notificationDetails = NotificationDetails(android: androidDetails);
 
       await flutterLocalNotificationsPlugin.zonedSchedule(
         0,
         'Reminder',
         'Time for $_selectedActivity',
-        scheduledTime,
+        scheduledTimeZone,
         notificationDetails,
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       );
     }
+  }
+
+  Future<List<PendingNotificationRequest>> getScheduledNotifications() async {
+    return await flutterLocalNotificationsPlugin.pendingNotificationRequests();
   }
 }

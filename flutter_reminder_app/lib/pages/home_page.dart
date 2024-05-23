@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../models/remainder_model.dart';
 import '../widgects/reminder_form.dart';
+import '../shedule/scheduled_reminders_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -16,6 +15,15 @@ class HomePage extends StatelessWidget {
       body: const Padding(
         padding: EdgeInsets.all(16.0),
         child: ReminderForm(),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ScheduledRemindersPage()),
+          );
+        },
+        child: const Icon(Icons.list),
       ),
     );
   }
